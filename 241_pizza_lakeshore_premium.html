@@ -27,11 +27,11 @@ let S = {
   tab: 'dashboard',
   role: null,
   sales: [
-    {id:1,date:'2026-06-20',pizza:'The Canadian',size:'Large',qty:3,channel:'Walk-in',revenue:65.97,cost:22,customer:'Priya Sharma'},
-    {id:2,date:'2026-06-21',pizza:'Meat Lovers',size:'X-Large',qty:2,channel:'Uber Eats',revenue:55.98,cost:19,customer:'James O\'Brien'},
-    {id:3,date:'2026-06-21',pizza:'BBQ Chicken',size:'Medium',qty:4,channel:'DoorDash',revenue:71.96,cost:24,customer:'Fatima Al-Hassan'},
-    {id:4,date:'2026-06-22',pizza:'Pepperoni Feast',size:'Large',qty:5,channel:'Walk-in',revenue:109.95,cost:36,customer:'Ravi Patel'},
-    {id:5,date:'2026-06-22',pizza:'Veggie Supreme',size:'Medium',qty:2,channel:'Phone',revenue:35.98,cost:12,customer:'Lisa Chen'},
+    {id:1,date:'2026-06-20',pizza:'The Canadian',size:'Large',qty:3,channel:'Walk-in',revenue:65.97,cost:22,customer:'Shreya Rawat'},
+    {id:2,date:'2026-06-21',pizza:'Meat Lovers',size:'X-Large',qty:2,channel:'Uber Eats',revenue:55.98,cost:19,customer:'Sarthak Goel'},
+    {id:3,date:'2026-06-21',pizza:'BBQ Chicken',size:'Medium',qty:4,channel:'DoorDash',revenue:71.96,cost:24,customer:'Bunmeet Singh'},
+    {id:4,date:'2026-06-22',pizza:'Pepperoni Feast',size:'Large',qty:5,channel:'Walk-in',revenue:109.95,cost:36,customer:'Shreya Punj'},
+    {id:5,date:'2026-06-22',pizza:'Veggie Supreme',size:'Medium',qty:2,channel:'Phone',revenue:35.98,cost:12,customer:'Pratham Batra'},
     {id:6,date:'2026-06-23',pizza:'Hawaiian',size:'Large',qty:3,channel:'Uber Eats',revenue:65.97,cost:21,customer:'Mike Torres'},
     {id:7,date:'2026-06-23',pizza:'Chicken Caesar',size:'X-Large',qty:1,channel:'DoorDash',revenue:27.99,cost:9,customer:'Priya Sharma'},
     {id:8,date:'2026-06-24',pizza:'The Canadian',size:'Large',qty:6,channel:'Walk-in',revenue:131.94,cost:44,customer:'David Kim'},
@@ -39,11 +39,11 @@ let S = {
     {id:10,date:'2026-06-25',pizza:'Meat Lovers',size:'X-Large',qty:4,channel:'Uber Eats',revenue:111.96,cost:37,customer:'James O\'Brien'},
   ],
   customers: [
-    {id:1,name:'Priya Sharma',phone:'416-555-0101',email:'priya@email.com',lastVisit:'2026-06-23',totalSpend:312,orders:14,favPizza:'The Canadian',channel:'Walk-in',tags:['VIP','Veg-friendly'],notes:'Thin crust, no olives. Birthday in March.'},
-    {id:2,name:"James O'Brien",phone:'416-555-0202',email:'james@email.com',lastVisit:'2026-06-25',totalSpend:489,orders:22,favPizza:'Meat Lovers',channel:'Uber Eats',tags:['VIP','Bulk Orders'],notes:'Orders for office every Friday.'},
-    {id:3,name:'Fatima Al-Hassan',phone:'416-555-0303',email:'fatima@email.com',lastVisit:'2026-06-24',totalSpend:186,orders:9,favPizza:'BBQ Chicken',channel:'DoorDash',tags:['Halal','Regular'],notes:'Halal toppings only. Lives on Lakeshore.'},
-    {id:4,name:'Ravi Patel',phone:'416-555-0404',email:'ravi@email.com',lastVisit:'2026-06-22',totalSpend:275,orders:12,favPizza:'Pepperoni Feast',channel:'Walk-in',tags:['Regular','Family'],notes:'Family of 5. Picks up every Sunday.'},
-    {id:5,name:'Lisa Chen',phone:'416-555-0505',email:'lisa@email.com',lastVisit:'2026-06-22',totalSpend:94,orders:5,favPizza:'Veggie Supreme',channel:'Phone',tags:['Vegetarian'],notes:'No spicy sauce.'},
+    {id:1,name:'Shreya Rawat',phone:'416-555-0101',email:'Shatss@email.com',lastVisit:'2026-06-23',totalSpend:312,orders:14,favPizza:'The Canadian',channel:'Walk-in',tags:['VIP','Veg-friendly'],notes:'Thin crust, no olives. Birthday in March.'},
+    {id:2,name:"Sarthak Goel",phone:'416-555-0202',email:'james@email.com',lastVisit:'2026-06-25',totalSpend:489,orders:22,favPizza:'Meat Lovers',channel:'Uber Eats',tags:['VIP','Bulk Orders'],notes:'Orders for office every Friday.'},
+    {id:3,name:'Bunmeet Singh',phone:'416-555-0303',email:'fatima@email.com',lastVisit:'2026-06-24',totalSpend:186,orders:9,favPizza:'BBQ Chicken',channel:'DoorDash',tags:['Halal','Regular'],notes:'Halal toppings only. Lives on Lakeshore.'},
+    {id:4,name:'Shreya Punj',phone:'416-555-0404',email:'ravi@email.com',lastVisit:'2026-06-22',totalSpend:275,orders:12,favPizza:'Pepperoni Feast',channel:'Walk-in',tags:['Regular','Family'],notes:'Family of 5. Picks up every Sunday.'},
+    {id:5,name:'Pratham Batra',phone:'416-555-0505',email:'lisa@email.com',lastVisit:'2026-06-22',totalSpend:94,orders:5,favPizza:'Veggie Supreme',channel:'Phone',tags:['Vegetarian'],notes:'No spicy sauce.'},
     {id:6,name:'Mike Torres',phone:'416-555-0606',email:'mike@email.com',lastVisit:'2026-06-23',totalSpend:155,orders:7,favPizza:'Hawaiian',channel:'Uber Eats',tags:['Occasional'],notes:''},
     {id:7,name:'David Kim',phone:'416-555-0707',email:'david@email.com',lastVisit:'2026-06-24',totalSpend:521,orders:28,favPizza:'The Canadian',channel:'Walk-in',tags:['VIP','Loyalty'],notes:'Longest-standing customer. Knows Gaurav personally.'},
   ],
@@ -147,17 +147,17 @@ function loginScreen(){
 
       <div style="display:grid;gap:12px">
         <button onclick="doLogin('owner')" style="padding:14px;background:linear-gradient(135deg,#CC0000,#990000);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:0.3px;transition:all 0.2s" onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
-          👑 Owner Login
+          Owner Login
           <div style="font-size:11px;opacity:0.75;font-weight:400;margin-top:2px">Gaurav Kadiyan · Dr. Swati Singroha</div>
         </button>
         <button onclick="doLogin('staff')" style="padding:14px;background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.background='rgba(255,255,255,0.1)'" onmouseleave="this.style.background='rgba(255,255,255,0.06)'">
-          👷 Staff Login
+          Staff Login
         </button>
       </div>
 
       <!-- love note -->
       <div style="margin-top:2rem;padding:12px;background:rgba(204,0,0,0.08);border:1px solid rgba(204,0,0,0.15);border-radius:12px">
-        <div style="font-size:11px;color:#FF8888;line-height:1.6">Made with love for<br><strong style="color:#FFB800">Mr. Gaurav Kadiyan & Dr. Swati Singroha</strong><br><span style="color:#FF6666">💕 Eva Kadiyan</span></div>
+        <div style="font-size:11px;color:#FF8888;line-height:1.6">Hands on service by<br><strong style="color:#FFB800">Mr. Gaurav Kadiyan & Dr. Swati Singroha</strong><br><span style="color:#FF6666">With love Eva Kadiyan</span></div>
       </div>
     </div>
 
@@ -343,7 +343,7 @@ function dashboardTab(){
           <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:6px">241 Pizza Lakeshore</div>
           <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7">3815 Lake Shore Blvd W, Etobicoke, ON M8W 1R2<br>
           Proudly owned & operated by <span style="color:#FFB800;font-weight:500">Mr. Gaurav Kadiyan & Dr. Swati Singroha</span><br>
-          <span style="color:#FF6666">Made with love · 💕 Eva Kadiyan</span></div>
+          <span style="color:#FF6666">With love Eva Kadiyan</span></div>
         </div>
         <div style="text-align:center">
           <div style="font-size:24px;margin-bottom:4px">🌟</div>
