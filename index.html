@@ -36,16 +36,16 @@ let S = {
     {id:7,date:'2026-06-23',pizza:'Chicken Caesar',size:'X-Large',qty:1,channel:'DoorDash',revenue:27.99,cost:9,customer:'Priya Sharma'},
     {id:8,date:'2026-06-24',pizza:'The Canadian',size:'Large',qty:6,channel:'Walk-in',revenue:131.94,cost:44,customer:'David Kim'},
     {id:9,date:'2026-06-24',pizza:'Five Cheese',size:'Medium',qty:2,channel:'Phone',revenue:35.98,cost:12,customer:'Fatima Al-Hassan'},
-    {id:10,date:'2026-06-25',pizza:'Meat Lovers',size:'X-Large',qty:4,channel:'Uber Eats',revenue:111.96,cost:37,customer:'James'Brien'},
+    {id:10,date:'2026-06-25',pizza:'Meat Lovers',size:'X-Large',qty:4,channel:'Uber Eats',revenue:111.96,cost:37,customer:'James Brien'},
   ],
   customers: [
     {id:1,name:'Shreya Rawat',phone:'416-555-0101',email:'Shatss@email.com',lastVisit:'2026-06-23',totalSpend:312,orders:14,favPizza:'The Canadian',channel:'Walk-in',tags:['VIP','Veg-friendly'],notes:'Thin crust, no olives. Birthday in March.'},
-    {id:2,name:"Sarthak Goel",phone:'416-555-0202',email:'james@email.com',lastVisit:'2026-06-25',totalSpend:489,orders:22,favPizza:'Meat Lovers',channel:'Uber Eats',tags:['VIP','Bulk Orders'],notes:'Orders for office every Friday.'},
-    {id:3,name:'Bunmeet Singh',phone:'416-555-0303',email:'fatima@email.com',lastVisit:'2026-06-24',totalSpend:186,orders:9,favPizza:'BBQ Chicken',channel:'DoorDash',tags:['Halal','Regular'],notes:'Halal toppings only. Lives on Lakeshore.'},
-    {id:4,name:'Shreya Punj',phone:'416-555-0404',email:'ravi@email.com',lastVisit:'2026-06-22',totalSpend:275,orders:12,favPizza:'Pepperoni Feast',channel:'Walk-in',tags:['Regular','Family'],notes:'Family of 5. Picks up every Sunday.'},
-    {id:5,name:'Pratham Batra',phone:'416-555-0505',email:'lisa@email.com',lastVisit:'2026-06-22',totalSpend:94,orders:5,favPizza:'Veggie Supreme',channel:'Phone',tags:['Vegetarian'],notes:'No spicy sauce.'},
-    {id:6,name:'Mike Torres',phone:'416-555-0606',email:'mike@email.com',lastVisit:'2026-06-23',totalSpend:155,orders:7,favPizza:'Hawaiian',channel:'Uber Eats',tags:['Occasional'],notes:''},
-    {id:7,name:'David Kim',phone:'416-555-0707',email:'david@email.com',lastVisit:'2026-06-24',totalSpend:521,orders:28,favPizza:'The Canadian',channel:'Walk-in',tags:['VIP','Loyalty'],notes:'Longest-standing customer. Knows Gaurav personally.'},
+    {id:2,name:"Sarthak Goel",phone:'416-555-0202',email:'sarthak@email.com',lastVisit:'2026-06-25',totalSpend:489,orders:22,favPizza:'Meat Lovers',channel:'Uber Eats',tags:['VIP','Bulk Orders'],notes:'Orders for office every Friday.'},
+    {id:3,name:'Bunmeet Singh',phone:'416-555-0303',email:'bunny@email.com',lastVisit:'2026-06-24',totalSpend:186,orders:9,favPizza:'BBQ Chicken',channel:'DoorDash',tags:['Halal','Regular'],notes:'Halal toppings only. Lives on Lakeshore.'},
+    {id:4,name:'Shreya Punj',phone:'416-555-0404',email:'shreya@email.com',lastVisit:'2026-06-22',totalSpend:275,orders:12,favPizza:'Pepperoni Feast',channel:'Walk-in',tags:['Regular','Family'],notes:'Family of 5. Picks up every Sunday.'},
+    {id:5,name:'Pratham Batra',phone:'416-555-0505',email:'prahtam@email.com',lastVisit:'2026-06-22',totalSpend:94,orders:5,favPizza:'Veggie Supreme',channel:'Phone',tags:['Vegetarian'],notes:'No spicy sauce.'},
+    {id:6,name:'Vasu Chawla',phone:'416-555-0606',email:'Vasu@email.com',lastVisit:'2026-06-23',totalSpend:155,orders:7,favPizza:'Hawaiian',channel:'Uber Eats',tags:['Occasional'],notes:''},
+    {id:7,name:'Sonal',phone:'416-555-0707',email:'Sonal@email.com',lastVisit:'2026-06-24',totalSpend:521,orders:28,favPizza:'The Canadian',channel:'Walk-in',tags:['VIP','Loyalty'],notes:'Longest-standing customer. Knows Gaurav personally.'},
   ],
   modal: null,
   newSale: {pizza:'The Canadian',size:'Large',qty:1,channel:'Walk-in',revenue:'',cost:'',customer:'',date:new Date().toISOString().slice(0,10)},
@@ -221,7 +221,7 @@ function dashboardTab(){
       <div style="animation:fadeUp 0.6s ease">
         <div style="font-size:11px;color:#CC0000;letter-spacing:2px;font-weight:600;margin-bottom:8px">📍 ETOBICOKE · LAKESHORE</div>
         <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:12px">Business at a<br><span style="color:#CC0000">Glance</span></div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.45);max-width:400px;line-height:1.6">Owned & operated with love by <span style="color:#FFB800;font-weight:500">Mr. Gaurav Kadiyan & Dr. Swati Singroha</span> <span style="color:#CC0000">· 💕 Eva Kadiyan</span></div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.45);max-width:400px;line-height:1.6">Owned & operated with love by <span style="color:#FFB800;font-weight:500">Mr. Gaurav Kadiyan & Dr. Swati Singroha</span> <span style="color:#CC0000">· Eva Kadiyan</span></div>
         <div style="margin-top:1rem;display:flex;gap:8px">
           <button onclick="S.tab='sales';S.modal='sale';render()" style="padding:10px 20px;background:#CC0000;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.background='#aa0000'" onmouseleave="this.style.background='#CC0000'">+ Record Sale</button>
           <button onclick="setTab('customers')" style="padding:10px 20px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:13px;cursor:pointer">View Customers</button>
