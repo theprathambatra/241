@@ -1,0 +1,633 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&display=swap');
+:root{--red:#CC0000;--red2:#AA0000;--gold:#FFB800;--cream:#FFF8F0;--dark:#1A0A0A}
+body{font-family:'Inter',sans-serif;background:#0d0d0d;color:#fff;overflow-x:hidden}
+.playfair{font-family:'Playfair Display',serif}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes countUp{from{opacity:0}to{opacity:1}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(204,0,0,0.3)}50%{box-shadow:0 0 40px rgba(204,0,0,0.7)}}
+.fade-up{animation:fadeUp 0.6s ease forwards}
+.float{animation:float 3s ease-in-out infinite}
+.glow-btn{animation:glow 2s ease-in-out infinite}
+</style>
+
+<div id="root"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+let S = {
+  screen: 'login',
+  tab: 'dashboard',
+  role: null,
+  sales: [
+    {id:1,date:'2026-06-20',pizza:'The Canadian',size:'Large',qty:3,channel:'Walk-in',revenue:65.97,cost:22,customer:'Priya Sharma'},
+    {id:2,date:'2026-06-21',pizza:'Meat Lovers',size:'X-Large',qty:2,channel:'Uber Eats',revenue:55.98,cost:19,customer:'James O\'Brien'},
+    {id:3,date:'2026-06-21',pizza:'BBQ Chicken',size:'Medium',qty:4,channel:'DoorDash',revenue:71.96,cost:24,customer:'Fatima Al-Hassan'},
+    {id:4,date:'2026-06-22',pizza:'Pepperoni Feast',size:'Large',qty:5,channel:'Walk-in',revenue:109.95,cost:36,customer:'Ravi Patel'},
+    {id:5,date:'2026-06-22',pizza:'Veggie Supreme',size:'Medium',qty:2,channel:'Phone',revenue:35.98,cost:12,customer:'Lisa Chen'},
+    {id:6,date:'2026-06-23',pizza:'Hawaiian',size:'Large',qty:3,channel:'Uber Eats',revenue:65.97,cost:21,customer:'Mike Torres'},
+    {id:7,date:'2026-06-23',pizza:'Chicken Caesar',size:'X-Large',qty:1,channel:'DoorDash',revenue:27.99,cost:9,customer:'Priya Sharma'},
+    {id:8,date:'2026-06-24',pizza:'The Canadian',size:'Large',qty:6,channel:'Walk-in',revenue:131.94,cost:44,customer:'David Kim'},
+    {id:9,date:'2026-06-24',pizza:'Five Cheese',size:'Medium',qty:2,channel:'Phone',revenue:35.98,cost:12,customer:'Fatima Al-Hassan'},
+    {id:10,date:'2026-06-25',pizza:'Meat Lovers',size:'X-Large',qty:4,channel:'Uber Eats',revenue:111.96,cost:37,customer:'James O\'Brien'},
+  ],
+  customers: [
+    {id:1,name:'Priya Sharma',phone:'416-555-0101',email:'priya@email.com',lastVisit:'2026-06-23',totalSpend:312,orders:14,favPizza:'The Canadian',channel:'Walk-in',tags:['VIP','Veg-friendly'],notes:'Thin crust, no olives. Birthday in March.'},
+    {id:2,name:"James O'Brien",phone:'416-555-0202',email:'james@email.com',lastVisit:'2026-06-25',totalSpend:489,orders:22,favPizza:'Meat Lovers',channel:'Uber Eats',tags:['VIP','Bulk Orders'],notes:'Orders for office every Friday.'},
+    {id:3,name:'Fatima Al-Hassan',phone:'416-555-0303',email:'fatima@email.com',lastVisit:'2026-06-24',totalSpend:186,orders:9,favPizza:'BBQ Chicken',channel:'DoorDash',tags:['Halal','Regular'],notes:'Halal toppings only. Lives on Lakeshore.'},
+    {id:4,name:'Ravi Patel',phone:'416-555-0404',email:'ravi@email.com',lastVisit:'2026-06-22',totalSpend:275,orders:12,favPizza:'Pepperoni Feast',channel:'Walk-in',tags:['Regular','Family'],notes:'Family of 5. Picks up every Sunday.'},
+    {id:5,name:'Lisa Chen',phone:'416-555-0505',email:'lisa@email.com',lastVisit:'2026-06-22',totalSpend:94,orders:5,favPizza:'Veggie Supreme',channel:'Phone',tags:['Vegetarian'],notes:'No spicy sauce.'},
+    {id:6,name:'Mike Torres',phone:'416-555-0606',email:'mike@email.com',lastVisit:'2026-06-23',totalSpend:155,orders:7,favPizza:'Hawaiian',channel:'Uber Eats',tags:['Occasional'],notes:''},
+    {id:7,name:'David Kim',phone:'416-555-0707',email:'david@email.com',lastVisit:'2026-06-24',totalSpend:521,orders:28,favPizza:'The Canadian',channel:'Walk-in',tags:['VIP','Loyalty'],notes:'Longest-standing customer. Knows Gaurav personally.'},
+  ],
+  modal: null,
+  newSale: {pizza:'The Canadian',size:'Large',qty:1,channel:'Walk-in',revenue:'',cost:'',customer:'',date:new Date().toISOString().slice(0,10)},
+  alert: null,
+  salesFilter: 'all',
+  cxSearch: '',
+  selectedCx: null,
+};
+
+const TIERS = {
+  VIP:{label:'VIP',min:500,color:'#FFB800',bg:'rgba(255,184,0,0.15)',border:'rgba(255,184,0,0.4)'},
+  Regular:{label:'Regular',min:200,color:'#4CAF50',bg:'rgba(76,175,80,0.12)',border:'rgba(76,175,80,0.3)'},
+  Occasional:{label:'Occasional',min:50,color:'#2196F3',bg:'rgba(33,150,243,0.12)',border:'rgba(33,150,243,0.3)'},
+  New:{label:'New',min:0,color:'#aaa',bg:'rgba(170,170,170,0.1)',border:'rgba(170,170,170,0.2)'},
+};
+function tier(spend){return spend>=500?TIERS.VIP:spend>=200?TIERS.Regular:spend>=50?TIERS.Occasional:TIERS.New;}
+function cad(v){return'CA$'+Number(v).toFixed(2);}
+function totalRev(){return S.sales.reduce((a,s)=>a+s.revenue,0);}
+function totalProfit(){return S.sales.reduce((a,s)=>a+(s.revenue-s.cost),0);}
+function showAlert(msg,type='success'){S.alert={msg,type};render();setTimeout(()=>{S.alert=null;render();},3200);}
+
+// SVG Pizza graphic
+function pizzaSVG(size=120){
+  return`<svg width="${size}" height="${size}" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="60" cy="60" r="58" fill="#C8A96E"/>
+    <circle cx="60" cy="60" r="50" fill="#E8C547"/>
+    <circle cx="60" cy="60" r="44" fill="#D4543A"/>
+    <circle cx="60" cy="60" r="38" fill="#C84A32"/>
+    <circle cx="44" cy="52" r="7" fill="#AA2222"/>
+    <circle cx="66" cy="44" r="5" fill="#AA2222"/>
+    <circle cx="72" cy="66" r="6" fill="#AA2222"/>
+    <circle cx="50" cy="72" r="5" fill="#AA2222"/>
+    <circle cx="58" cy="58" r="4" fill="#AA2222"/>
+    <circle cx="42" cy="65" r="4" fill="#228822"/>
+    <circle cx="68" cy="56" r="3.5" fill="#228822"/>
+    <circle cx="54" cy="44" r="3" fill="#228822"/>
+    <circle cx="74" cy="74" r="3" fill="#228822"/>
+    <circle cx="47" cy="57" r="2.5" fill="#F5F5DC"/>
+    <circle cx="63" cy="67" r="2.5" fill="#F5F5DC"/>
+    <circle cx="71" cy="50" r="2" fill="#F5F5DC"/>
+  </svg>`;
+}
+
+// Flame SVG
+function flameSVG(){
+  return`<svg width="28" height="36" viewBox="0 0 28 36" xmlns="http://www.w3.org/2000/svg">
+    <path d="M14 2 C14 2 20 10 20 16 C20 18 18 19 17 18 C17 18 22 24 16 30 C16 30 18 20 12 18 C12 18 15 22 13 26 C13 26 6 20 8 12 C8 12 6 16 7 20 C7 20 2 14 8 6 C8 6 10 12 14 10 C14 10 10 6 14 2Z" fill="url(#fg)"/>
+    <defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFD700"/><stop offset="60%" stop-color="#FF4400"/><stop offset="100%" stop-color="#CC0000"/></linearGradient></defs>
+  </svg>`;
+}
+
+// Star rating SVG
+function stars(n=5){
+  return Array.from({length:5},(_,i)=>`<svg width="14" height="14" viewBox="0 0 24 24" fill="${i<n?'#FFB800':'#333'}"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`).join('');
+}
+
+// Channel badge
+function channelBadge(ch){
+  const cfg={
+    'Walk-in':{bg:'rgba(204,0,0,0.2)',color:'#FF6666',icon:'🚶'},
+    'Uber Eats':{bg:'rgba(0,120,0,0.2)',color:'#66DD66',icon:'🟢'},
+    'DoorDash':{bg:'rgba(255,100,0,0.2)',color:'#FF9944',icon:'🔴'},
+    'Phone':{bg:'rgba(100,100,255,0.2)',color:'#9999FF',icon:'📞'},
+  };
+  const c=cfg[ch]||{bg:'rgba(150,150,150,0.2)',color:'#ccc',icon:'•'};
+  return`<span style="background:${c.bg};color:${c.color};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500">${c.icon} ${ch}</span>`;
+}
+
+// ─── LOGIN ───
+function loginScreen(){
+  return`
+  <div style="min-height:100vh;background:#0d0d0d;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden">
+    <!-- animated bg circles -->
+    <div style="position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(204,0,0,0.18) 0%,transparent 70%);top:-100px;right:-100px;animation:float 6s ease-in-out infinite"></div>
+    <div style="position:absolute;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(255,184,0,0.1) 0%,transparent 70%);bottom:-50px;left:-80px;animation:float 5s ease-in-out infinite 1s"></div>
+    <!-- floating pizza icons -->
+    <div style="position:absolute;top:12%;left:8%;opacity:0.18;animation:float 4s ease-in-out infinite 0.5s;font-size:48px">🍕</div>
+    <div style="position:absolute;top:20%;right:10%;opacity:0.14;animation:float 5s ease-in-out infinite 1s;font-size:36px">🍕</div>
+    <div style="position:absolute;bottom:18%;left:12%;opacity:0.12;animation:float 6s ease-in-out infinite 0.2s;font-size:56px">🍕</div>
+    <div style="position:absolute;bottom:25%;right:8%;opacity:0.16;animation:float 4.5s ease-in-out infinite 0.8s;font-size:30px">🍕</div>
+
+    <!-- card -->
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:3rem 2.5rem;width:380px;text-align:center;backdrop-filter:blur(20px);animation:fadeUp 0.8s ease;position:relative;z-index:10">
+      <!-- logo area -->
+      <div style="margin-bottom:1.5rem">
+        <div style="display:inline-flex;align-items:center;justify-content:center;width:90px;height:90px;background:linear-gradient(135deg,#CC0000,#880000);border-radius:50%;margin-bottom:1rem;animation:pulse 2.5s ease-in-out infinite;box-shadow:0 0 40px rgba(204,0,0,0.4)">
+          ${pizzaSVG(60)}
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:900;color:#fff;letter-spacing:-0.5px">241 Pizza</div>
+        <div style="font-size:12px;color:#CC0000;font-weight:500;letter-spacing:2px;margin-top:4px">LAKESHORE ETOBICOKE</div>
+      </div>
+
+      <!-- divider -->
+      <div style="display:flex;align-items:center;gap:12px;margin:1.5rem 0">
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+        <span style="font-size:11px;color:#666;letter-spacing:1px">SIGN IN</span>
+        <div style="flex:1;height:1px;background:rgba(255,255,255,0.08)"></div>
+      </div>
+
+      <div style="display:grid;gap:12px">
+        <button onclick="doLogin('owner')" style="padding:14px;background:linear-gradient(135deg,#CC0000,#990000);color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:0.3px;transition:all 0.2s" onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform='scale(1)'">
+          👑 Owner Login
+          <div style="font-size:11px;opacity:0.75;font-weight:400;margin-top:2px">Gaurav Kadiyan · Dr. Swati Singroha</div>
+        </button>
+        <button onclick="doLogin('staff')" style="padding:14px;background:rgba(255,255,255,0.06);color:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.background='rgba(255,255,255,0.1)'" onmouseleave="this.style.background='rgba(255,255,255,0.06)'">
+          👷 Staff Login
+        </button>
+      </div>
+
+      <!-- love note -->
+      <div style="margin-top:2rem;padding:12px;background:rgba(204,0,0,0.08);border:1px solid rgba(204,0,0,0.15);border-radius:12px">
+        <div style="font-size:11px;color:#FF8888;line-height:1.6">Made with love for<br><strong style="color:#FFB800">Mr. Gaurav Kadiyan & Dr. Swati Singroha</strong><br><span style="color:#FF6666">💕 Eva Kadiyan</span></div>
+      </div>
+    </div>
+
+    <!-- bottom brand bar -->
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:12px;text-align:center;font-size:11px;color:#333;border-top:1px solid rgba(255,255,255,0.04)">
+      3815 Lake Shore Blvd W, Etobicoke, ON · 416-241-0241
+    </div>
+  </div>`;
+}
+
+// ─── SHELL ───
+function shell(content){
+  const tabs=[
+    {id:'dashboard',icon:'📊',label:'Dashboard'},
+    {id:'sales',icon:'💰',label:'Sales'},
+    {id:'customers',icon:'👥',label:'Customers'},
+  ];
+  const alertHtml=S.alert?`<div style="position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:999;background:${S.alert.type==='success'?'#1a4a1a':'#4a1a1a'};border:1px solid ${S.alert.type==='success'?'#4CAF50':'#CC0000'};color:#fff;padding:10px 22px;border-radius:30px;font-size:13px;font-weight:500;animation:fadeUp 0.3s ease;box-shadow:0 4px 20px rgba(0,0,0,0.5)">${S.alert.type==='success'?'✅':'❌'} ${S.alert.msg}</div>`:'';
+  return`
+  ${alertHtml}
+  <!-- top nav -->
+  <div style="position:sticky;top:0;z-index:100;background:rgba(13,13,13,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);height:58px;display:flex;align-items:center;padding:0 1.5rem;gap:8px">
+    <div style="display:flex;align-items:center;gap:10px;margin-right:auto">
+      <div style="width:34px;height:34px;background:linear-gradient(135deg,#CC0000,#880000);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">🍕</div>
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:#fff;line-height:1">241 Pizza</div>
+        <div style="font-size:9px;color:#CC0000;letter-spacing:1.5px;font-weight:500">LAKESHORE HUB</div>
+      </div>
+    </div>
+    ${tabs.map(t=>`<button onclick="setTab('${t.id}')" style="padding:7px 14px;border:none;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s;background:${S.tab===t.id?'rgba(204,0,0,0.9)':'rgba(255,255,255,0.05)'};color:${S.tab===t.id?'#fff':'rgba(255,255,255,0.6)'}">${t.icon} ${t.label}</button>`).join('')}
+    <div style="margin-left:8px;width:1px;height:24px;background:rgba(255,255,255,0.08)"></div>
+    <div style="font-size:11px;color:#555;margin-left:6px">${S.role==='owner'?'👑':'👷'} ${S.role==='owner'?'Owner':'Staff'}</div>
+    <button onclick="doLogout()" style="padding:6px 12px;border:1px solid rgba(255,255,255,0.1);border-radius:8px;font-size:11px;color:rgba(255,255,255,0.4);background:none;cursor:pointer;margin-left:4px" onmouseenter="this.style.borderColor='#CC0000';this.style.color='#CC0000'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.4)'">Sign out</button>
+  </div>
+  <div>${content}</div>`;
+}
+
+// ─── DASHBOARD ───
+function dashboardTab(){
+  const rev=totalRev(), prof=totalProfit(), margin=rev>0?((prof/rev)*100).toFixed(1):0;
+  const pizzaCount={};S.sales.forEach(s=>pizzaCount[s.pizza]=(pizzaCount[s.pizza]||0)+s.qty);
+  const topPizzas=Object.entries(pizzaCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxQ=topPizzas[0]?topPizzas[0][1]:1;
+  const dayRev={};S.sales.forEach(s=>{dayRev[s.date]=(dayRev[s.date]||0)+s.revenue;});
+  const dayKeys=Object.keys(dayRev).sort();
+  const dayVals=dayKeys.map(d=>dayRev[d]);
+  const maxR=Math.max(...dayVals,1);
+  const chRev={'Walk-in':0,'Uber Eats':0,'DoorDash':0,'Phone':0};
+  S.sales.forEach(s=>{if(chRev[s.channel]!==undefined)chRev[s.channel]+=s.revenue;});
+  const chTotal=Object.values(chRev).reduce((a,v)=>a+v,0);
+  const chColors={'Walk-in':'#CC0000','Uber Eats':'#4CAF50','DoorDash':'#FF6600','Phone':'#2196F3'};
+
+  return`
+  <!-- HERO BANNER -->
+  <div style="position:relative;overflow:hidden;background:linear-gradient(135deg,#1a0000 0%,#0d0d0d 40%,#0a0a1a 100%);padding:3rem 2rem 2.5rem;margin-bottom:0">
+    <!-- bg glow -->
+    <div style="position:absolute;top:-80px;right:-80px;width:400px;height:400px;background:radial-gradient(circle,rgba(204,0,0,0.25) 0%,transparent 70%);pointer-events:none"></div>
+    <div style="position:absolute;bottom:-60px;left:-40px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,184,0,0.08) 0%,transparent 70%);pointer-events:none"></div>
+
+    <div style="max-width:880px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:2rem;align-items:center">
+      <div style="animation:fadeUp 0.6s ease">
+        <div style="font-size:11px;color:#CC0000;letter-spacing:2px;font-weight:600;margin-bottom:8px">📍 ETOBICOKE · LAKESHORE</div>
+        <div style="font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:#fff;line-height:1.1;margin-bottom:12px">Business at a<br><span style="color:#CC0000">Glance</span></div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.45);max-width:400px;line-height:1.6">Owned & operated with love by <span style="color:#FFB800;font-weight:500">Mr. Gaurav Kadiyan & Dr. Swati Singroha</span> <span style="color:#CC0000">· 💕 Eva Kadiyan</span></div>
+        <div style="margin-top:1rem;display:flex;gap:8px">
+          <button onclick="S.tab='sales';S.modal='sale';render()" style="padding:10px 20px;background:#CC0000;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s" onmouseenter="this.style.background='#aa0000'" onmouseleave="this.style.background='#CC0000'">+ Record Sale</button>
+          <button onclick="setTab('customers')" style="padding:10px 20px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.12);border-radius:10px;font-size:13px;cursor:pointer">View Customers</button>
+        </div>
+      </div>
+      <div style="animation:float 4s ease-in-out infinite;opacity:0.9">${pizzaSVG(140)}</div>
+    </div>
+  </div>
+
+  <!-- KPI STRIP -->
+  <div style="background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.05)">
+    <div style="max-width:880px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)">
+      ${[
+        {label:'Total Revenue',val:cad(rev),sub:'All channels',icon:'💵',color:'#CC0000'},
+        {label:'Total Profit',val:cad(prof),sub:`${margin}% margin`,icon:'📈',color:'#4CAF50'},
+        {label:'Orders Logged',val:S.sales.length,sub:'In system',icon:'🧾',color:'#2196F3'},
+        {label:'VIP Customers',val:S.customers.filter(c=>c.totalSpend>=500).length,sub:'Top spenders',icon:'⭐',color:'#FFB800'},
+      ].map((m,i)=>`<div style="padding:1.5rem 1.25rem;border-right:${i<3?'1px solid rgba(255,255,255,0.05)':'none'};animation:fadeUp ${0.4+i*0.1}s ease">
+        <div style="font-size:24px;margin-bottom:4px">${m.icon}</div>
+        <div style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:${m.color};margin-bottom:2px">${m.val}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.3px">${m.label}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:1px">${m.sub}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <div style="max-width:880px;margin:0 auto;padding:1.75rem 2rem">
+
+    <!-- REVENUE CHART + CHANNEL BREAKDOWN -->
+    <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px">
+
+      <!-- revenue chart -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.5rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#fff">Daily Revenue</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px">Last 6 days</div>
+          </div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:#CC0000">${cad(rev)}</div>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:8px;height:120px">
+          ${dayKeys.map((d,i)=>{
+            const h=Math.max(10,Math.round((dayVals[i]/maxR)*100));
+            const isMax=dayVals[i]===maxR;
+            return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="font-size:9px;color:${isMax?'#FFB800':'rgba(255,255,255,0.25)'};font-weight:${isMax?'600':'400'}">${isMax?'⬆':''}${cad(dayVals[i]).replace('CA$','')}</div>
+              <div style="background:${isMax?'linear-gradient(180deg,#FFB800,#CC0000)':'linear-gradient(180deg,rgba(204,0,0,0.7),rgba(204,0,0,0.3))'};width:100%;height:${h}px;border-radius:6px 6px 0 0;transition:all 0.3s"></div>
+              <div style="font-size:9px;color:rgba(255,255,255,0.3)">${d.slice(5)}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- channel breakdown -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.5rem">
+        <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">Revenue by Channel</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:1.25rem">Order source breakdown</div>
+        ${Object.entries(chRev).map(([ch,v])=>{
+          const pct=chTotal>0?Math.round((v/chTotal)*100):0;
+          return`<div style="margin-bottom:14px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+              <span style="font-size:12px;color:rgba(255,255,255,0.6)">${ch}</span>
+              <div style="text-align:right"><span style="font-size:12px;font-weight:600;color:#fff">${pct}%</span><span style="font-size:10px;color:rgba(255,255,255,0.3);margin-left:4px">${cad(v)}</span></div>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:4px;height:6px">
+              <div style="background:${chColors[ch]};height:6px;border-radius:4px;width:${pct}%;transition:width 0.8s ease"></div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- TOP PIZZAS + RECENT ORDERS -->
+    <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:16px;margin-bottom:16px">
+      <!-- top pizzas -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.5rem">
+        <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:4px">🏆 Top Sellers</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:1.25rem">By units sold</div>
+        ${topPizzas.map(([name,qty],i)=>{
+          const pct=Math.round((qty/maxQ)*100);
+          const medals=['🥇','🥈','🥉','4️⃣','5️⃣'];
+          return`<div style="margin-bottom:13px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+              <span style="font-size:14px">${medals[i]}</span>
+              <span style="font-size:12px;color:rgba(255,255,255,0.75);flex:1">${name}</span>
+              <span style="font-size:12px;font-weight:600;color:${i===0?'#FFB800':'#fff'}">${qty}</span>
+            </div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:4px;height:5px;margin-left:22px">
+              <div style="background:${i===0?'linear-gradient(90deg,#FFB800,#CC0000)':'rgba(204,0,0,0.5)'};height:5px;border-radius:4px;width:${pct}%"></div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- recent sales -->
+      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.5rem">
+        <div style="font-size:13px;font-weight:600;color:#fff;margin-bottom:1.25rem">🧾 Recent Sales</div>
+        ${S.sales.slice(0,5).map(s=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(204,0,0,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🍕</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:12px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.pizza}</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.3)">${s.customer} · ${s.date}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div style="font-size:13px;font-weight:600;color:#CC0000">${cad(s.revenue)}</div>
+            ${channelBadge(s.channel)}
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- BOTTOM PRIDE BANNER -->
+    <div style="position:relative;overflow:hidden;background:linear-gradient(135deg,#1a0000,#0d0000);border:1px solid rgba(204,0,0,0.25);border-radius:16px;padding:2rem">
+      <div style="position:absolute;right:-20px;top:-20px;opacity:0.06;font-size:140px">🍕</div>
+      <div style="position:absolute;left:160px;bottom:-30px;opacity:0.04;font-size:120px">🍕</div>
+      <div style="display:grid;grid-template-columns:auto 1fr auto;gap:1.5rem;align-items:center;position:relative">
+        <div style="animation:float 4s ease-in-out infinite">${pizzaSVG(70)}</div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:6px">241 Pizza Lakeshore</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.5);line-height:1.7">3815 Lake Shore Blvd W, Etobicoke, ON M8W 1R2<br>
+          Proudly owned & operated by <span style="color:#FFB800;font-weight:500">Mr. Gaurav Kadiyan & Dr. Swati Singroha</span><br>
+          <span style="color:#FF6666">Made with love · 💕 Eva Kadiyan</span></div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-size:24px;margin-bottom:4px">🌟</div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.3)">Since 1986</div>
+          <div style="font-size:10px;color:#CC0000;font-weight:500;margin-top:2px">60+ Locations</div>
+          <div style="display:flex;gap:1px;margin-top:6px;justify-content:center">${stars(5)}</div>
+        </div>
+      </div>
+    </div>
+
+  </div>`;
+}
+
+// ─── SALES ───
+function salesTab(){
+  const filtered=S.salesFilter==='all'?S.sales:S.sales.filter(s=>s.channel===S.salesFilter);
+  const rev=filtered.reduce((a,s)=>a+s.revenue,0);
+  const prof=filtered.reduce((a,s)=>a+(s.revenue-s.cost),0);
+  const channels=['all','Walk-in','Phone','Uber Eats','DoorDash'];
+  const chColors={'Walk-in':'#CC0000','Uber Eats':'#4CAF50','DoorDash':'#FF6600','Phone':'#2196F3'};
+  return`
+  <!-- sales hero -->
+  <div style="background:linear-gradient(135deg,#0d0000,#0d0d0d);border-bottom:1px solid rgba(255,255,255,0.05);padding:2rem;position:relative;overflow:hidden">
+    <div style="position:absolute;right:2rem;top:50%;transform:translateY(-50%);opacity:0.06;font-size:100px">💰</div>
+    <div style="max-width:880px;margin:0 auto;display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:6px">Sales Log</div>
+        <div style="font-size:13px;color:rgba(255,255,255,0.4)">Track every slice sold · Manual entry by shift</div>
+      </div>
+      <button onclick="S.modal='sale';render()" style="padding:12px 22px;background:#CC0000;color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;box-shadow:0 0 20px rgba(204,0,0,0.3);transition:all 0.2s" onmouseenter="this.style.background='#aa0000'" onmouseleave="this.style.background='#CC0000'">+ Record Sale</button>
+    </div>
+  </div>
+
+  <div style="max-width:880px;margin:0 auto;padding:1.5rem 2rem">
+    <!-- kpi row -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:1.5rem">
+      ${[
+        {label:'Filtered Revenue',val:cad(rev),color:'#CC0000',icon:'💵'},
+        {label:'Filtered Profit',val:cad(prof),color:'#4CAF50',icon:'📈'},
+        {label:'Orders',val:filtered.length,color:'#2196F3',icon:'🧾'},
+      ].map(m=>`<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1.25rem;display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">${m.icon}</div>
+        <div><div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:${m.color}">${m.val}</div><div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:1px">${m.label}</div></div>
+      </div>`).join('')}
+    </div>
+
+    <!-- filter pills -->
+    <div style="display:flex;gap:6px;margin-bottom:1.25rem;flex-wrap:wrap">
+      ${channels.map(c=>{
+        const active=S.salesFilter===c;
+        const col=chColors[c]||'#888';
+        return`<button onclick="S.salesFilter='${c}';render()" style="padding:6px 14px;border-radius:20px;border:1px solid ${active?col:'rgba(255,255,255,0.1)'};background:${active?col+'22':'transparent'};color:${active?col:'rgba(255,255,255,0.5)'};font-size:12px;font-weight:500;cursor:pointer;transition:all 0.2s">${c==='all'?'All Channels':c}</button>`;
+      }).join('')}
+    </div>
+
+    <!-- table -->
+    <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;overflow:hidden">
+      <!-- thead -->
+      <div style="display:grid;grid-template-columns:80px 1fr 80px 60px 130px 110px 90px 90px;padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03)">
+        ${['Date','Pizza','Size','Qty','Customer','Channel','Revenue','Profit'].map(h=>`<div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.3);letter-spacing:0.5px">${h.toUpperCase()}</div>`).join('')}
+      </div>
+      ${filtered.map((s,i)=>{
+        const pr=s.revenue-s.cost;
+        return`<div style="display:grid;grid-template-columns:80px 1fr 80px 60px 130px 110px 90px 90px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);background:${i%2===0?'transparent':'rgba(255,255,255,0.01)'};transition:background 0.15s" onmouseenter="this.style.background='rgba(204,0,0,0.05)'" onmouseleave="this.style.background='${i%2===0?'transparent':'rgba(255,255,255,0.01)'}'">
+          <div style="font-size:11px;color:rgba(255,255,255,0.3)">${s.date.slice(5)}</div>
+          <div style="font-size:12px;font-weight:500;color:#fff;display:flex;align-items:center;gap:6px"><span>🍕</span>${s.pizza}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5)">${s.size}</div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.7);text-align:center">${s.qty}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6)">${s.customer}</div>
+          <div>${channelBadge(s.channel)}</div>
+          <div style="font-size:13px;font-weight:600;color:#CC0000">${cad(s.revenue)}</div>
+          <div style="font-size:13px;font-weight:600;color:#4CAF50">${cad(pr)}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+// ─── CUSTOMERS ───
+function customersTab(){
+  const search=S.cxSearch.toLowerCase();
+  const list=S.customers.filter(c=>!search||c.name.toLowerCase().includes(search)||c.phone.includes(search)||c.favPizza.toLowerCase().includes(search));
+  const vips=S.customers.filter(c=>c.totalSpend>=500);
+  const avgSpend=(S.customers.reduce((a,c)=>a+c.totalSpend,0)/S.customers.length).toFixed(0);
+  return`
+  <!-- header -->
+  <div style="background:linear-gradient(135deg,#00001a,#0d0d0d);border-bottom:1px solid rgba(255,255,255,0.05);padding:2rem;position:relative;overflow:hidden">
+    <div style="position:absolute;right:2rem;top:50%;transform:translateY(-50%);opacity:0.05;font-size:120px">👥</div>
+    <div style="max-width:880px;margin:0 auto">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:1.5rem">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:6px">Customer CRM</div>
+          <div style="font-size:13px;color:rgba(255,255,255,0.4)">Full profiles · Order history · Spend tiers</div>
+        </div>
+        <button onclick="S.modal='newcx';render()" style="padding:12px 22px;background:rgba(255,255,255,0.07);color:#fff;border:1px solid rgba(255,255,255,0.12);border-radius:12px;font-size:13px;cursor:pointer;white-space:nowrap">+ Add Customer</button>
+      </div>
+      <!-- mini stats -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        ${[
+          {label:'Total Customers',val:S.customers.length,icon:'👥'},
+          {label:'VIP Members',val:vips.length,icon:'⭐'},
+          {label:'Avg Spend',val:cad(avgSpend),icon:'💵'},
+          {label:'Most Popular Pizza',val:'The Canadian',icon:'🍕'},
+        ].map(m=>`<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:16px">${m.icon}</span>
+          <div><div style="font-size:13px;font-weight:600;color:#fff">${m.val}</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">${m.label}</div></div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:880px;margin:0 auto;padding:1.5rem 2rem">
+    <!-- search -->
+    <div style="position:relative;margin-bottom:1.5rem">
+      <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.3);font-size:14px">🔍</span>
+      <input type="text" placeholder="Search customers by name, phone or pizza..." oninput="S.cxSearch=this.value;render()" style="width:100%;padding:12px 14px 12px 40px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;color:#fff;font-size:13px;outline:none" onfocus="this.style.borderColor='rgba(204,0,0,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+    </div>
+
+    <!-- customer grid -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">
+      ${list.map(c=>{
+        const t=tier(c.totalSpend);
+        const init=c.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+        const cxSales=S.sales.filter(s=>s.customer===c.name);
+        return`<div onclick="S.selectedCx=${c.id};S.modal='viewcx';render()" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:1.25rem;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden" onmouseenter="this.style.borderColor='rgba(204,0,0,0.3)';this.style.background='rgba(204,0,0,0.06)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.07)';this.style.background='rgba(255,255,255,0.03)'">
+          <!-- tier glow -->
+          <div style="position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,${t.color}18 0%,transparent 70%)"></div>
+          <!-- header -->
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+            <div style="width:44px;height:44px;border-radius:12px;background:rgba(204,0,0,0.2);color:#FF6666;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;flex-shrink:0">${init}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-weight:600;font-size:14px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.name}</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:1px">${c.phone}</div>
+            </div>
+            <span style="background:${t.bg};color:${t.color};border:1px solid ${t.border};font-size:10px;padding:2px 9px;border-radius:20px;font-weight:600;white-space:nowrap;flex-shrink:0">${t.label}</span>
+          </div>
+          <!-- stats -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+            <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:8px">
+              <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:2px">Total spent</div>
+              <div style="font-size:14px;font-weight:600;color:#CC0000">${cad(c.totalSpend)}</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:8px">
+              <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:2px">Orders</div>
+              <div style="font-size:14px;font-weight:600;color:#fff">${c.orders}</div>
+            </div>
+          </div>
+          <!-- fav -->
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+            <span style="font-size:11px">🍕</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.5)">Fav: </span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.75);font-weight:500">${c.favPizza}</span>
+          </div>
+          <!-- tags -->
+          <div style="display:flex;flex-wrap:wrap;gap:4px">
+            ${c.tags.map(tg=>`<span style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.4);font-size:10px;padding:2px 7px;border-radius:20px">${tg}</span>`).join('')}
+          </div>
+          ${c.notes?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);font-size:10px;color:rgba(255,255,255,0.3);line-height:1.5">${c.notes}</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+}
+
+// ─── MODALS ───
+function modalWrap(content){
+  return`<div style="position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(6px)" onclick="if(event.target===this){S.modal=null;render()}">
+    <div style="background:#141414;border:1px solid rgba(255,255,255,0.1);border-radius:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:fadeUp 0.3s ease" onclick="event.stopPropagation()">
+      ${content}
+    </div>
+  </div>`;
+}
+
+function saleModal(){
+  if(S.modal!=='sale')return'';
+  const s=S.newSale;
+  const pizzas=['The Canadian','Pepperoni Feast','BBQ Chicken','Meat Lovers','Veggie Supreme','Hawaiian','Chicken Caesar','Five Cheese','Margherita','Pepperoni','All Dressed','Vegan Garden'];
+  return modalWrap(`
+    <div style="background:linear-gradient(135deg,#1a0000,#141414);padding:1.5rem;border-radius:20px 20px 0 0;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff">Record a Sale</div>
+        <div style="font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px">Enter the details for this order</div>
+      </div>
+      <button onclick="S.modal=null;render()" style="width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.07);border:none;color:rgba(255,255,255,0.5);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+    </div>
+    <div style="padding:1.5rem;display:grid;gap:14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.4);display:block;margin-bottom:5px;letter-spacing:0.3px">DATE</label>
+          <input type="date" value="${s.date}" onchange="S.newSale.date=this.value;render()" style="width:100%;padding:9px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;color:#fff;font-size:13px;outline:none"></div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.4);display:block;margin-bottom:5px;letter-spacing:0.3px">QTY</label>
+          <input type="number" min="1" value="${s.qty}" oninput="S.newSale.qty=this.value;render()" style="width:100%;padding:9px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;color:#fff;font-size:13px;outline:none"></div>
+      </div>
+      <div><label style="font-size:11px;color:rgba(255,255,255,0.4);display:block;margin-bottom:5px;letter-spacing:0.3px">PIZZA *</label>
+        <select onchange="S.newSale.pizza=this.value;render()" style="width:100%;padding:9px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;color:#fff;font-size:13px;outline:none">
+          ${pizzas.map(p=>`<option value="${p}" ${s.pizza===p?'selected':''} style="background:#222">${p}</option>`).join('')}
+        </select></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.4);display:block;margin-bottom:5px;letter-spacing:0.3px">SIZE *</label>
+          <select onchange="S.newSale.size=this.value;render()" style="width:100%;padding:9px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;color:#fff;font-size:13px;outline:none">
+            ${['Small','Medium','Large','X-Large'].map(sz=>`<option value="${sz}" ${s.size===sz?'selected':''} style="background:#222">${sz}</option>`).join('')}
+          </select></div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.4);display:block;margin-bottom:5px;letter-spacing:0.3px">CHANNEL *</label>
+          <select onchange="S.newSale.channel=this.value;render()" style="width:100%;padding:9px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;color:#fff;font-size:13px;outline:none">
+            ${['Walk-in','Phone','Uber Eats','DoorDash'].map(c=>`<option value="${c}" ${s.channel===c?'selected':''} style="background:#222">${c}</option>`).join('')}
+          </select></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.4);display:block;margin-bottom:5px;letter-spacing:0.3px">REVENUE (CA$) *</label>
+          <input type="number" placeholder="e.g. 27.99" value="${s.revenue}" oninput="S.newSale.revenue=this.value" style="width:100%;padding:9px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;color:#fff;font-size:13px;outline:none"></div>
+        <div><label style="font-size:11px;color:rgba(255,255,255,0.4);display:block;margin-bottom:5px;letter-spacing:0.3px">COST (CA$)</label>
+          <input type="number" placeholder="e.g. 9.00" value="${s.cost}" oninput="S.newSale.cost=this.value" style="width:100%;padding:9px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;color:#fff;font-size:13px;outline:none"></div>
+      </div>
+      <div><label style="font-size:11px;color:rgba(255,255,255,0.4);display:block;margin-bottom:5px;letter-spacing:0.3px">CUSTOMER NAME *</label>
+        <input type="text" placeholder="e.g. Priya Sharma" value="${s.customer}" oninput="S.newSale.customer=this.value" style="width:100%;padding:9px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.09);border-radius:8px;color:#fff;font-size:13px;outline:none"></div>
+      <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:4px">
+        <button onclick="S.modal=null;render()" style="padding:11px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.1);border-radius:10px;cursor:pointer;font-size:13px">Cancel</button>
+        <button onclick="submitSale()" style="padding:11px;background:#CC0000;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;box-shadow:0 0 20px rgba(204,0,0,0.3)">Save Sale ✓</button>
+      </div>
+    </div>`);
+}
+
+function viewCxModal(){
+  if(S.modal!=='viewcx'||!S.selectedCx)return'';
+  const c=S.customers.find(x=>x.id===S.selectedCx);
+  if(!c)return'';
+  const t=tier(c.totalSpend);
+  const init=c.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const cxSales=S.sales.filter(s=>s.customer===c.name);
+  return modalWrap(`
+    <div style="background:linear-gradient(135deg,#00001a,#141414);padding:1.5rem;border-radius:20px 20px 0 0">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:54px;height:54px;border-radius:14px;background:rgba(204,0,0,0.2);color:#FF6666;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700">${init}</div>
+        <div style="flex:1">
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#fff">${c.name}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px">${c.phone} · ${c.email||'no email'}</div>
+        </div>
+        <span style="background:${t.bg};color:${t.color};border:1px solid ${t.border};font-size:11px;padding:4px 12px;border-radius:20px;font-weight:600">${t.label}</span>
+        <button onclick="S.modal=null;render()" style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.07);border:none;color:rgba(255,255,255,0.5);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+      </div>
+    </div>
+    <div style="padding:1.5rem;display:grid;gap:14px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        ${[{label:'Total Spent',val:cad(c.totalSpend),color:'#CC0000'},{label:'Orders',val:c.orders,color:'#fff'},{label:'Last Visit',val:c.lastVisit,color:'#FFB800'}].map(m=>`<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:10px;text-align:center"><div style="font-size:14px;font-weight:700;color:${m.color}">${m.val}</div><div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:2px">${m.label}</div></div>`).join('')}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:4px">Favourite pizza</div><div style="font-size:12px;color:#fff">🍕 ${c.favPizza}</div></div>
+        <div style="background:rgba(255,255,255,0.03);border-radius:10px;padding:10px"><div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:4px">Preferred channel</div><div style="font-size:12px;color:#fff">${c.channel}</div></div>
+      </div>
+      ${c.tags.length?`<div><div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:6px;letter-spacing:0.5px">TAGS</div><div style="display:flex;flex-wrap:wrap;gap:5px">${c.tags.map(tg=>`<span style="background:rgba(204,0,0,0.15);color:#FF8888;border:1px solid rgba(204,0,0,0.2);font-size:11px;padding:3px 10px;border-radius:20px">${tg}</span>`).join('')}</div></div>`:''}
+      ${c.notes?`<div style="background:rgba(255,184,0,0.07);border:1px solid rgba(255,184,0,0.15);border-radius:10px;padding:12px"><div style="font-size:10px;color:#FFB800;margin-bottom:4px;font-weight:500">📝 STAFF NOTES</div><div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6">${c.notes}</div></div>`:''}
+      ${cxSales.length?`<div><div style="font-size:10px;color:rgba(255,255,255,0.3);margin-bottom:8px;letter-spacing:0.5px">ORDER HISTORY</div>
+        ${cxSales.map(s=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)">
+          <div style="display:flex;align-items:center;gap:8px"><span>🍕</span><div><div style="font-size:12px;color:#fff">${s.pizza} · ${s.size}</div><div style="font-size:10px;color:rgba(255,255,255,0.3)">${s.date} · ${s.channel}</div></div></div>
+          <div style="font-size:13px;font-weight:600;color:#CC0000">${cad(s.revenue)}</div>
+        </div>`).join('')}
+      </div>`:''}
+    </div>`);
+}
+
+// ─── RENDER ───
+function render(){
+  const el=$('root');if(!el)return;
+  if(S.screen==='login'){el.innerHTML=loginScreen();return;}
+  let body='';
+  if(S.tab==='dashboard')body=dashboardTab();
+  else if(S.tab==='sales')body=salesTab();
+  else if(S.tab==='customers')body=customersTab();
+  el.innerHTML=shell(body)+saleModal()+viewCxModal();
+}
+
+// ─── ACTIONS ───
+window.doLogin=function(role){S.screen='app';S.role=role;S.tab='dashboard';render();}
+window.doLogout=function(){S.screen='login';S.role=null;render();}
+window.setTab=function(t){S.tab=t;render();}
+window.submitSale=function(){
+  const s=S.newSale;
+  if(!s.pizza||!s.size||!s.revenue||!s.customer){showAlert('Fill in all required fields.','error');return;}
+  S.sales.unshift({id:Date.now(),date:s.date,pizza:s.pizza,size:s.size,qty:Number(s.qty),channel:s.channel,revenue:Number(s.revenue),cost:Number(s.cost)||0,customer:s.customer});
+  const cx=S.customers.find(c=>c.name===s.customer);
+  if(cx){cx.totalSpend+=Number(s.revenue);cx.orders+=1;cx.lastVisit=s.date;}
+  S.newSale={pizza:'The Canadian',size:'Large',qty:1,channel:'Walk-in',revenue:'',cost:'',customer:'',date:new Date().toISOString().slice(0,10)};
+  S.modal=null;
+  showAlert('Sale recorded successfully!');
+}
+
+render();
+</script>
